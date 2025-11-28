@@ -1,0 +1,118 @@
+{% extends "shared/base.html" %}
+
+{% block title %}إضافة منتج جديد{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4>إضافة منتج جديد</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">اسم المنتج</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">وصف المنتج</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="price" class="form-label">السعر</label>
+                            <input type="number" class="form-control" id="price" name="price" step="0.01" required>
+                        </div>
+                        
+                        <!-- قسم الأحجام -->
+                        <div class="mb-3">
+                            <label class="form-label">الأحجام المتوفرة</label>
+                            <div class="row">
+                                <!-- أحجام البناطيل -->
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="show_pants_sizes" onchange="togglePantsSizes()">
+                                        <label class="form-check-label" for="show_pants_sizes">
+                                            أحجام البناطيل
+                                        </label>
+                                    </div>
+                                    <div id="pants_sizes" class="mt-2" style="display: none;">
+                                        {% for size in range(29, 39) %}
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="pants_sizes" value="{{ size }}" id="pants_{{ size }}">
+                                            <label class="form-check-label" for="pants_{{ size }}">
+                                                {{ size }}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                
+                                <!-- أحجام الملابس -->
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="show_clothes_sizes" onchange="toggleClothesSizes()">
+                                        <label class="form-check-label" for="show_clothes_sizes">
+                                            أحجام الملابس
+                                        </label>
+                                    </div>
+                                    <div id="clothes_sizes" class="mt-2" style="display: none;">
+                                        {% for size in ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'] %}
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="clothes_sizes" value="{{ size }}" id="clothes_{{ size }}">
+                                            <label class="form-check-label" for="clothes_{{ size }}">
+                                                {{ size }}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- قسم الألوان -->
+                        <div class="mb-3">
+                            <label class="form-label">الألوان المتوفرة</label>
+                            <div class="row">
+                                {% for color in ['أحمر', 'أزرق', 'أخضر', 'أسود', 'أبيض', 'رمادي', 'بني', 'أصفر', 'وردي', 'بنفسجي'] %}
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="colors" value="{{ color }}" id="color_{{ color }}">
+                                        <label class="form-check-label" for="color_{{ color }}">
+                                            {{ color }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="image" class="form-label">صورة المنتج</label>
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">إضافة المنتج</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function togglePantsSizes() {
+    const pantsSizes = document.getElementById('pants_sizes');
+    pantsSizes.style.display = document.getElementById('show_pants_sizes').checked ? 'block' : 'none';
+}
+
+function toggleClothesSizes() {
+    const clothesSizes = document.getElementById('clothes_sizes');
+    clothesSizes.style.display = document.getElementById('show_clothes_sizes').checked ? 'block' : 'none';
+}
+</script>
+{% endblock %} 

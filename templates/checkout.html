@@ -1,0 +1,105 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">إتمام الطلب</h2>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>معلومات الدفع</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('process_order') }}" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label class="form-label">طريقة الدفع</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="payment_method" id="bank" value="bank" required>
+                                <label class="form-check-label" for="bank">
+                                    تحويل بنكي
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="payment_method" id="cash" value="cash" required>
+                                <label class="form-check-label" for="cash">
+                                    الدفع عند الاستلام
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="bankDetails" style="display: none;">
+                            <div class="alert alert-info">
+                                <h5>معلومات الحساب البنكي</h5>
+                                <p>رقم الحساب: 1234567890</p>
+                                <p>اسم البنك: البنك الأهلي</p>
+                                <p>اسم المستفيد: متجر إلكتروني</p>
+                            </div>
+                            <div class="mb-3">
+                                <label for="transferImage" class="form-label">صورة إشعار التحويل</label>
+                                <input type="file" class="form-control" id="transferImage" name="transfer_image" accept="image/*">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="name" class="form-label">الاسم الكامل</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">رقم الهاتف</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="address" class="form-label">العنوان</label>
+                            <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">تأكيد الطلب</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>ملخص الطلب</h4>
+                </div>
+                <div class="card-body">
+                    {% for item in cart_items %}
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>{{ item.name }}</span>
+                        <span>{{ item.quantity }} × {{ item.price }} ريال</span>
+                    </div>
+                    {% endfor %}
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <strong>المجموع</strong>
+                        <strong>{{ total }} ريال</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const bankRadio = document.getElementById('bank');
+    const bankDetails = document.getElementById('bankDetails');
+    const transferImage = document.getElementById('transferImage');
+
+    bankRadio.addEventListener('change', function() {
+        if (this.checked) {
+            bankDetails.style.display = 'block';
+            transferImage.required = true;
+        } else {
+            bankDetails.style.display = 'none';
+            transferImage.required = false;
+        }
+    });
+});
+</script>
+{% endblock %} 

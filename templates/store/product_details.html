@@ -1,0 +1,457 @@
+{% extends "shared/base.html" %}
+
+{% block title %}{{ product.name }} - {{ store.name }}{% endblock %}
+
+{% block styles %}
+<style>
+    .product-details {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-top: 2rem;
+    }
+
+    .product-image {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .product-image:hover {
+        transform: scale(1.02);
+    }
+
+    .product-info {
+        padding: 1.5rem;
+    }
+
+    .product-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+
+    .product-price {
+        font-size: 1.5rem;
+        color: #e74c3c;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
+    .product-description {
+        color: #34495e;
+        line-height: 1.8;
+        margin-bottom: 2rem;
+    }
+
+    .size-options, .color-options {
+        margin-bottom: 1.5rem;
+    }
+
+    .size-option, .color-option {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        margin: 0.25rem;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .size-option:hover, .color-option:hover {
+        border-color: #3498db;
+        background-color: #f7f9fc;
+    }
+
+    .size-option.selected, .color-option.selected {
+        border-color: #3498db;
+        background-color: #3498db;
+        color: white;
+    }
+
+    .add-to-cart-btn {
+        background: linear-gradient(45deg, #3498db, #2980b9);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    .add-to-cart-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+    }
+
+    .store-info {
+        position: relative;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        overflow: hidden;
+    }
+
+    .store-info::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("{{ url_for('static', filename='uploads/' + store.image) if store.image else url_for('static', filename='images/default_store.jpg') }}") no-repeat center center;
+        background-size: cover;
+        opacity: 0.1;
+        z-index: 0;
+    }
+
+    .store-info-content {
+        position: relative;
+        z-index: 1;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 1.5rem;
+        border-radius: 8px;
+    }
+
+    .store-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .store-address {
+        color: #7f8c8d;
+        margin-bottom: 1rem;
+    }
+
+    .breadcrumb {
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .breadcrumb-item a {
+        color: #3498db;
+        text-decoration: none;
+    }
+
+    .breadcrumb-item a:hover {
+        color: #2980b9;
+    }
+
+    .rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+
+    .rating input {
+        display: none;
+    }
+
+    .rating label {
+        cursor: pointer;
+        font-size: 1.5rem;
+        color: #ddd;
+        padding: 0 0.1em;
+    }
+
+    .rating input:checked ~ label,
+    .rating label:hover,
+    .rating label:hover ~ label {
+        color: #ffc107;
+    }
+
+    .rating-item:last-child {
+        border-bottom: none !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- صورة المنتج -->
+        <div class="col-md-6 mb-4">
+            <img src="{{ url_for('static', filename='uploads/' + product.image) if product.image else url_for('static', filename='images/default_product.jpg') }}" 
+                 alt="{{ product.name }}" 
+                 class="img-fluid rounded shadow">
+        </div>
+        
+        <!-- معلومات المنتج -->
+        <div class="col-md-6">
+            <h1 class="mb-3">{{ product.name }}</h1>
+            <p class="text-muted mb-3">{{ product.description }}</p>
+            
+            <div class="d-flex align-items-center mb-3">
+                <div class="me-3">
+                    <span class="h4 mb-0">{{ "%.1f"|format(product.average_rating|default(0)) }}</span>
+                    <div class="text-warning">
+                        {% for i in range(5) %}
+                            {% if i < (product.average_rating|default(0)|int) %}
+                                <i class="fas fa-star"></i>
+                            {% elif i < (product.average_rating|default(0)) %}
+                                <i class="fas fa-star-half-alt"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <span class="text-muted">({{ product.ratings|length }} تقييم)</span>
+            </div>
+            
+            <div class="mb-3">
+                <h5 class="mb-2">السعر</h5>
+                <span class="h3 text-primary">{{ product.price }} ريال</span>
+            </div>
+            
+            {% if product.pants_sizes %}
+            <div class="mb-3">
+                <h5 class="mb-2">الأحجام المتوفرة (بنطلون)</h5>
+                <div class="d-flex gap-2 flex-wrap">
+                    {% for size in product.pants_sizes %}
+                    <div class="size-option" data-size="{{ size }}" onclick="selectSize(this, 'pants')">
+                        {{ size }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if product.clothes_sizes %}
+            <div class="mb-3">
+                <h5 class="mb-2">الأحجام المتوفرة (ملابس)</h5>
+                <div class="d-flex gap-2 flex-wrap">
+                    {% for size in product.clothes_sizes %}
+                    <div class="size-option" data-size="{{ size }}" onclick="selectSize(this, 'clothes')">
+                        {{ size }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if product.colors %}
+            <div class="mb-4">
+                <h5 class="mb-2">الألوان المتوفرة</h5>
+                <div class="d-flex gap-2 flex-wrap">
+                    {% for color in product.colors %}
+                    <div class="color-option" data-color="{{ color }}" onclick="selectColor(this)">
+                        {{ color }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <button class="btn btn-primary btn-lg w-100" onclick="addToCart('{{ product._id }}')" id="addToCartBtn">
+                <i class="fas fa-shopping-cart me-2"></i>
+                إضافة إلى السلة
+            </button>
+        </div>
+    </div>
+    
+    <!-- قسم التقييمات -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-star text-warning me-2"></i>
+                        تقييمات المنتج
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if current_user.is_authenticated %}
+                    <form id="ratingForm" class="mb-4">
+                        <div class="mb-3">
+                            <label class="form-label">تقييمك</label>
+                            <div class="rating">
+                                {% for i in range(5, 0, -1) %}
+                                <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}" {% if user_rating and user_rating.rating == i %}checked{% endif %}>
+                                <label for="star{{ i }}"><i class="fas fa-star"></i></label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="comment" class="form-label">تعليقك</label>
+                            <textarea class="form-control" id="comment" name="comment" rows="3">{{ user_rating.comment if user_rating else '' }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-2"></i>
+                            إرسال التقييم
+                        </button>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        يجب تسجيل الدخول لإضافة تقييم
+                    </div>
+                    {% endif %}
+
+                    <div id="ratingsList">
+                        {% for rating in product.ratings %}
+                        <div class="rating-item border-bottom py-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <h6 class="mb-0">{{ rating.user_name }}</h6>
+                                    <small class="text-muted">{{ rating.created_at.strftime('%Y-%m-%d') }}</small>
+                                </div>
+                                <div class="text-warning">
+                                    {% for i in range(5) %}
+                                        {% if i < rating.rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% if rating.comment %}
+                            <p class="mb-0">{{ rating.comment }}</p>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="store-info">
+    <div class="store-info-content">
+        <div class="store-name">
+            <i class="fas fa-store me-2"></i>{{ store.name }}
+        </div>
+        <div class="store-address">
+            <i class="fas fa-map-marker-alt me-2"></i>{{ store.address }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let selectedSize = null;
+let selectedColor = null;
+
+function selectSize(element, type) {
+    // إزالة التحديد من جميع المقاسات
+    document.querySelectorAll('.size-option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+    // تحديد المقاس المختار
+    element.classList.add('selected');
+    selectedSize = {
+        type: type,
+        value: element.dataset.size
+    };
+    updateAddToCartButton();
+}
+
+function selectColor(element) {
+    // إزالة التحديد من جميع الألوان
+    document.querySelectorAll('.color-option').forEach(opt => {
+        opt.classList.remove('selected');
+    });
+    // تحديد اللون المختار
+    element.classList.add('selected');
+    selectedColor = element.dataset.color;
+    updateAddToCartButton();
+}
+
+function updateAddToCartButton() {
+    const button = document.getElementById('addToCartBtn');
+    if (!selectedSize || !selectedColor) {
+        button.disabled = true;
+        button.title = 'الرجاء اختيار المقاس واللون';
+    } else {
+        button.disabled = false;
+        button.title = 'إضافة إلى السلة';
+    }
+}
+
+function addToCart(productId) {
+    if (!selectedSize || !selectedColor) {
+        alert('الرجاء اختيار المقاس واللون');
+        return;
+    }
+
+    fetch(`/cart/add/${productId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            size: selectedSize,
+            color: selectedColor
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('تمت إضافة المنتج إلى السلة');
+        } else {
+            alert(data.message || 'حدث خطأ أثناء إضافة المنتج إلى السلة');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('حدث خطأ أثناء إضافة المنتج إلى السلة');
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const ratingForm = document.getElementById('ratingForm');
+    if (ratingForm) {
+        ratingForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const rating = document.querySelector('input[name="rating"]:checked')?.value;
+            const comment = document.getElementById('comment').value;
+            
+            if (!rating) {
+                alert('الرجاء اختيار تقييم');
+                return;
+            }
+            
+            fetch(`/product/{{ product._id }}/rate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'rating': rating,
+                    'comment': comment
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.message || 'حدث خطأ أثناء إضافة التقييم');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('حدث خطأ أثناء إضافة التقييم');
+            });
+        });
+    }
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}متجر إلكتروني{% endblock %}</title>
+    
+    <!-- الخطوط -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap RTL -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- ملف CSS الرئيسي -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    
+    {% block styles %}{% endblock %}
+</head>
+<body> 
+    
+    <!-- الشريط العلوي -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('home') }}">
+                <i class="fas fa-store me-2"></i>متجرنا
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+<ul class="navbar-nav me-auto">
+    <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('home') }}">الرئيسية</a>
+    </li>
+
+    {% if current_user.is_authenticated %}
+        {# — عرض لوحة التحكم إن كان صاحب متجر — #}
+        {% if current_user.is_store_owner %}
+        <li class="nav-item">
+           <a href="{{ url_for('dashboard') }}">لوحة التحكم</a>
+                <i class="fas fa-tachometer-alt me-1"></i>لوحة التحكم
+            </a>
+        </li>
+        {% endif %}
+
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('cart') }}">
+                <i class="fas fa-shopping-cart me-1"></i>السلة
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('profile') }}">الملف الشخصي</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-danger" href="{{ url_for('logout') }}">تسجيل الخروج</a>
+        </li>
+    {% else %}
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('login') }}">تسجيل الدخول</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('register') }}">إنشاء حساب</a>
+        </li>
+    {% endif %}
+</ul>
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="container py-4">
+        <div class="container mt-3">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- التذييل -->
+    <footer class="bg-light py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0">&copy; {{ current_year }} متجرنا. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    
+    {% block scripts %}{% endblock %}
+
+    <style>
+    /* تنسيق القائمة المنسدلة */
+    .dropdown-menu {
+        border: none;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+    }
+
+    .dropdown-item {
+        border-radius: 0.3rem;
+        font-size: 1.1rem;
+        transition: all 0.2s ease;
+    }
+
+    .dropdown-item:hover {
+        background-color: #f8f9fa;
+        transform: translateX(-5px);
+    }
+
+    .dropdown-item i {
+        width: 20px;
+        text-align: center;
+    }
+
+    /* تنسيق Navbar */
+    .navbar {
+        padding: 1rem 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar-brand {
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .nav-link {
+        font-size: 1.1rem;
+        padding: 0.5rem 1rem !important;
+    }
+
+    /* تنسيق زر تسجيل الخروج */
+    .nav-item:last-child .nav-link {
+        color: #dc3545 !important;
+        font-weight: 500;
+    }
+
+    .nav-item:last-child .nav-link:hover {
+        color: #c82333 !important;
+        background-color: rgba(220, 53, 69, 0.1);
+        border-radius: 0.5rem;
+    }
+
+    /* تنسيق الأزرار */
+    .btn {
+        padding: 0.5rem 1.5rem;
+        font-size: 1.1rem;
+        border-radius: 0.5rem;
+    }
+
+    /* تنسيق التنبيهات */
+    .alert {
+        border-radius: 0.5rem;
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    </style>
+</body>
+</html>

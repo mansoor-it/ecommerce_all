@@ -1,0 +1,89 @@
+{% extends "admin/base.html" %}
+
+{% block title %}تعديل المتجر - لوحة تحكم المشرف{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="mb-0">
+                                <i class="fas fa-store text-primary me-2"></i>
+                                تعديل المتجر
+                            </h5>
+                        </div>
+                        <div class="col-auto">
+                            <a href="{{ url_for('admin_stores') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-right me-1"></i>
+                                العودة للمتاجر
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">اسم المتجر</label>
+                                    <input type="text" class="form-control" id="name" name="name" value="{{ store.name }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">وصف المتجر</label>
+                                    <textarea class="form-control" id="description" name="description" rows="3" required>{{ store.description }}</textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="address" class="form-label">العنوان</label>
+                                    <input type="text" class="form-control" id="address" name="address" value="{{ store.address }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="category" class="form-label">القسم</label>
+                                    <select class="form-select" id="category" name="category" required>
+                                        <option value="">اختر القسم</option>
+                                        {% for category in categories %}
+                                        <option value="{{ category.id }}" {% if category.id == store.category %}selected{% endif %}>
+                                            {{ category.name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="image" class="form-label">صورة المتجر</label>
+                                    <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                                    {% if store.image %}
+                                    <div class="mt-2">
+                                        <img src="{{ url_for('static', filename='uploads/' + store.image) }}" 
+                                             alt="{{ store.name }}" 
+                                             class="img-thumbnail" 
+                                             style="max-width: 200px;">
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="is_featured" name="is_featured" {% if store.is_featured %}checked{% endif %}>
+                                        <label class="form-check-label" for="is_featured">
+                                            متجر مميز
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-end mt-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>
+                                حفظ التغييرات
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

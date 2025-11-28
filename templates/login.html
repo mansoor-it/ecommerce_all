@@ -1,0 +1,120 @@
+{% extends "shared/base.html" %}
+
+{% block title %}تسجيل الدخول{% endblock %}
+
+{% block styles %}
+<style>
+    .login-container {
+        min-height: calc(100vh - 300px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 400px;
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 2rem;
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .login-header i {
+        font-size: 3rem;
+        color: var(--secondary-color);
+        margin-bottom: 1rem;
+    }
+
+    .login-header h2 {
+        color: var(--primary-color);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .login-header p {
+        color: #6c757d;
+        margin-bottom: 0;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        color: var(--primary-color);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        padding: 0.75rem 1rem;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--light-gray);
+        transition: var(--transition);
+    }
+
+    .form-control:focus {
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+
+    .btn-login {
+        width: 100%;
+        padding: 0.75rem;
+        font-weight: 600;
+        margin-top: 1rem;
+    }
+
+    .register-link {
+        text-align: center;
+        margin-top: 1.5rem;
+        color: #6c757d;
+    }
+
+    .register-link a {
+        color: var(--secondary-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: var(--transition);
+    }
+
+    .register-link a:hover {
+        color: var(--primary-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <i class="fas fa-user-circle"></i>
+            <h2>تسجيل الدخول</h2>
+            <p>مرحباً بعودتك! قم بتسجيل الدخول للوصول إلى حسابك</p>
+        </div>
+        <form method="POST" action="{{ url_for('login') }}">
+            <div class="form-group">
+                <label for="email" class="form-label">البريد الإلكتروني</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password" class="form-label">كلمة المرور</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-login">
+                <i class="fas fa-sign-in-alt me-2"></i>تسجيل الدخول
+            </button>
+        </form>
+        <div class="register-link">
+            ليس لديك حساب؟ <a href="{{ url_for('register') }}">إنشاء حساب جديد</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

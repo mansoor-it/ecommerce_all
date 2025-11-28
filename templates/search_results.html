@@ -1,0 +1,76 @@
+{% extends "shared/base.html" %}
+
+{% block title %}نتائج البحث بالصورة{% endblock %}
+
+{% block styles %}
+<style>
+    .results-container {
+        margin-top: 2rem;
+    }
+    .result-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin-bottom: 2rem;
+    }
+    .result-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    .result-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+    .result-info {
+        padding: 1rem;
+    }
+    .result-info h3 {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+        color: #2c3e50;
+    }
+    .result-info a {
+        text-decoration: none;
+        color: #3498db;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container results-container">
+    <h2 class="section-title text-center">نتائج البحث بالصورة</h2>
+    <div id="results-row" class="row">
+        {% if results|length == 0 %}
+            <div class="col-12">
+                <div class="empty-state">
+                    <i class="fas fa-search"></i>
+                    <h3>لم نعثر على منتجات مشابهة</h3>
+                    <p>حاول بصورة أخرى أو عدّل معايير البحث.</p>
+                </div>
+            </div>
+        {% else %}
+            {% for item in results %}
+            <div class="col-md-4">
+                <div class="result-card">
+                    <img src="{{ item.image_url }}" alt="صورة المنتج" class="result-image">
+                    <div class="result-info">
+                        {% if item.name %}
+                            <h3>{{ item.name }}</h3>
+                        {% endif %}
+                        {% if item.detail_url and item.detail_url != '#' %}
+                            <a href="{{ item.detail_url }}">عرض التفاصيل</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div class="text-center mt-3">
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">عودة للصفحة الرئيسية</a>
+    </div>
+</div>
+{% endblock %}

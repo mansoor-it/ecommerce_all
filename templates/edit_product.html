@@ -1,0 +1,129 @@
+{% extends "shared/base.html" %}
+
+{% block title %}تعديل المنتج - {{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>
+                        تعديل المنتج
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">اسم المنتج</label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ product.name }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">وصف المنتج</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required>{{ product.description }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="price" class="form-label">السعر (ريال)</label>
+                            <input type="number" class="form-control" id="price" name="price" value="{{ product.price }}" step="0.01" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="category" class="form-label">القسم</label>
+                            <select class="form-select" id="category" name="category" required>
+                                {% for cat in categories %}
+                                <option value="{{ cat._id }}" {% if cat._id == product.category %}selected{% endif %}>
+                                    {{ cat.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="image" class="form-label">صورة المنتج</label>
+                            {% if product.image %}
+                            <div class="mb-2">
+                                <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}" class="img-thumbnail" style="max-height: 200px;">
+                            </div>
+                            {% endif %}
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                            <small class="text-muted">اترك هذا الحقل فارغاً إذا كنت لا تريد تغيير الصورة</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">الأحجام المتوفرة</label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="pants_sizes" value="S" {% if 'S' in product.pants_sizes %}checked{% endif %}>
+                                        <label class="form-check-label">S</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="pants_sizes" value="M" {% if 'M' in product.pants_sizes %}checked{% endif %}>
+                                        <label class="form-check-label">M</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="pants_sizes" value="L" {% if 'L' in product.pants_sizes %}checked{% endif %}>
+                                        <label class="form-check-label">L</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="clothes_sizes" value="S" {% if 'S' in product.clothes_sizes %}checked{% endif %}>
+                                        <label class="form-check-label">S</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="clothes_sizes" value="M" {% if 'M' in product.clothes_sizes %}checked{% endif %}>
+                                        <label class="form-check-label">M</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="clothes_sizes" value="L" {% if 'L' in product.clothes_sizes %}checked{% endif %}>
+                                        <label class="form-check-label">L</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">الألوان المتوفرة</label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="colors" value="أحمر" {% if 'أحمر' in product.colors %}checked{% endif %}>
+                                        <label class="form-check-label">أحمر</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="colors" value="أزرق" {% if 'أزرق' in product.colors %}checked{% endif %}>
+                                        <label class="form-check-label">أزرق</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="colors" value="أخضر" {% if 'أخضر' in product.colors %}checked{% endif %}>
+                                        <label class="form-check-label">أخضر</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                حفظ التغييرات
+                            </button>
+                            <a href="{{ url_for('store_dashboard') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-right me-2"></i>
+                                العودة للوحة التحكم
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,395 @@
+{% extends "admin/base.html" %}
+
+{% block title %}لوحة تحكم المشرف - متجرنا{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- إحصائيات عامة -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary bg-opacity-10 p-3 rounded">
+                                <i class="fas fa-store text-primary fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">المتاجر</h6>
+                            <h3 class="mb-0">{{ total_stores }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success bg-opacity-10 p-3 rounded">
+                                <i class="fas fa-box text-success fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">المنتجات</h6>
+                            <h3 class="mb-0">{{ total_products }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-info bg-opacity-10 p-3 rounded">
+                                <i class="fas fa-users text-info fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">المستخدمين</h6>
+                            <h3 class="mb-0">{{ total_users }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-warning bg-opacity-10 p-3 rounded">
+                                <i class="fas fa-shopping-cart text-warning fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">الطلبات</h6>
+                            <h3 class="mb-0">{{ total_orders }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- آخر المتاجر -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="mb-0">
+                                <i class="fas fa-store text-primary me-2"></i>
+                                آخر المتاجر
+                            </h5>
+                        </div>
+                        <div class="col-auto">
+                            <a href="{{ url_for('admin_stores') }}" class="btn btn-sm btn-primary">
+                                عرض الكل
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_stores %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="border-0">المتجر</th>
+                                    <th class="border-0">القسم</th>
+                                    <th class="border-0">المنتجات</th>
+                                    <th class="border-0">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for store in recent_stores %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ url_for('static', filename='uploads/' + store.image) if store.image else url_for('static', filename='images/default_store.jpg') }}" 
+                                                 alt="{{ store.name }}" 
+                                                 class="rounded me-2" 
+                                                 style="width: 40px; height: 40px; object-fit: cover;">
+                                            <div>
+                                                <h6 class="mb-0">{{ store.name }}</h6>
+                                                <small class="text-muted">{{ store.address }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-tag me-1"></i>{{ store.category }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">
+                                            <i class="fas fa-box me-1"></i>{{ store.products|length }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('admin_edit_store', store_id=store._id) }}" class="btn btn-sm btn-info" title="تعديل">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-store fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">لا توجد متاجر حالياً</h5>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- آخر المنتجات -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="mb-0">
+                                <i class="fas fa-box text-success me-2"></i>
+                                آخر المنتجات
+                            </h5>
+                        </div>
+                        <div class="col-auto">
+                            <a href="{{ url_for('admin_products') }}" class="btn btn-sm btn-success">
+                                عرض الكل
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_products %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="border-0">المنتج</th>
+                                    <th class="border-0">المتجر</th>
+                                    <th class="border-0">السعر</th>
+                                    <th class="border-0">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in recent_products %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ url_for('static', filename='uploads/' + product.image) if product.image else url_for('static', filename='images/default_product.jpg') }}" 
+                                                 alt="{{ product.name }}" 
+                                                 class="rounded me-2" 
+                                                 style="width: 40px; height: 40px; object-fit: cover;">
+                                            <div>
+                                                <h6 class="mb-0">{{ product.name }}</h6>
+                                                <small class="text-muted">{{ product.description[:30] }}...</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-store me-1"></i>{{ product.store_name }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-money-bill-wave me-1"></i>{{ product.price }} ريال
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('admin_edit_product', product_id=product._id) }}" class="btn btn-sm btn-info" title="تعديل">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-box fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">لا توجد منتجات حالياً</h5>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- آخر المستخدمين -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="mb-0">
+                                <i class="fas fa-users text-info me-2"></i>
+                                آخر المستخدمين
+                            </h5>
+                        </div>
+                        <div class="col-auto">
+                            <a href="{{ url_for('admin_users') }}" class="btn btn-sm btn-info">
+                                عرض الكل
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_users %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="border-0">المستخدم</th>
+                                    <th class="border-0">نوع المستخدم</th>
+                                    <th class="border-0">تاريخ التسجيل</th>
+                                    <th class="border-0">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in recent_users %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light d-flex align-items-center justify-content-center me-2" 
+                                                 style="width: 40px; height: 40px; border-radius: 50%;">
+                                                <i class="fas fa-user text-muted"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">{{ user.name }}</h6>
+                                                <small class="text-muted">{{ user.email }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if user.user_type == 'admin' %}
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-user-shield me-1"></i>مشرف
+                                        </span>
+                                        {% elif user.user_type == 'store_owner' %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-store me-1"></i>صاحب متجر
+                                        </span>
+                                        {% else %}
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-user me-1"></i>عميل
+                                        </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('admin_edit_user', user_id=user._id) }}" class="btn btn-sm btn-info" title="تعديل">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">لا يوجد مستخدمين حالياً</h5>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- آخر الطلبات -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="mb-0">
+                                <i class="fas fa-shopping-cart text-warning me-2"></i>
+                                آخر الطلبات
+                            </h5>
+                        </div>
+                        <div class="col-auto">
+                            <a href="{{ url_for('admin_orders') }}" class="btn btn-sm btn-warning">
+                                عرض الكل
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_orders %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="border-0">العميل</th>
+                                    <th class="border-0">المجموع</th>
+                                    <th class="border-0">الحالة</th>
+                                    <th class="border-0">التاريخ</th>
+                                    <th class="border-0">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light d-flex align-items-center justify-content-center me-2" 
+                                                 style="width: 40px; height: 40px; border-radius: 50%;">
+                                                <i class="fas fa-user text-muted"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">{{ order.name }}</h6>
+                                                <small class="text-muted">{{ order.phone }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-money-bill-wave me-1"></i>{{ order.total }} ريال
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if order.status == 'completed' %}bg-success{% elif order.status == 'cancelled' %}bg-danger{% else %}bg-warning{% endif %}">
+                                            {% if order.status == 'completed' %}
+                                            <i class="fas fa-check-circle me-1"></i>مكتمل
+                                            {% elif order.status == 'cancelled' %}
+                                            <i class="fas fa-times-circle me-1"></i>ملغي
+                                            {% else %}
+                                            <i class="fas fa-clock me-1"></i>قيد الانتظار
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#orderDetails{{ order._id }}" title="عرض التفاصيل">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">لا توجد طلبات حالياً</h5>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

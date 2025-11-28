@@ -1,0 +1,232 @@
+{% extends "admin/base.html" %}
+
+{% block title %}إدارة المنتجات - لوحة تحكم المشرف{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="mb-0">
+                                <i class="fas fa-box text-primary me-2"></i>
+                                إدارة المنتجات
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if products %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="border-0">#</th>
+                                    <th class="border-0">الصورة</th>
+                                    <th class="border-0">اسم المنتج</th>
+                                    <th class="border-0">المتجر</th>
+                                    <th class="border-0">القسم</th>
+                                    <th class="border-0">السعر</th>
+                                    <th class="border-0">الأحجام</th>
+                                    <th class="border-0">الألوان</th>
+                                    <th class="border-0">مميز</th>
+                                    <th class="border-0">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in products %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>
+                                        <img src="{{ url_for('static', filename='uploads/' + product.image) if product.image else url_for('static', filename='images/default_product.jpg') }}" 
+                                             alt="{{ product.name }}" 
+                                             class="rounded" 
+                                             style="width: 50px; height: 50px; object-fit: cover;">
+                                    </td>
+                                    <td>{{ product.name }}</td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-store me-1"></i>{{ product.store_name }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-tag me-1"></i>{{ product.category }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-money-bill-wave me-1"></i>{{ product.price }} ريال
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if product.pants_sizes %}
+                                        <span class="badge bg-primary me-1">بنطلون</span>
+                                        {% endif %}
+                                        {% if product.clothes_sizes %}
+                                        <span class="badge bg-primary">ملابس</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% for color in product.colors %}
+                                        <span class="badge bg-light text-dark me-1">{{ color }}</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input featured-toggle" type="checkbox" 
+                                                   data-product-id="{{ product._id }}"
+                                                   {% if product.is_featured %}checked{% endif %}>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{{ url_for('admin_edit_product', product_id=product._id) }}" class="btn btn-sm btn-info" title="تعديل">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button onclick="deleteProduct('{{ product._id }}')" class="btn btn-sm btn-danger" title="حذف">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-box fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">لا توجد منتجات حالياً</h5>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function deleteProduct(productId) {
+    if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+        fetch(`/admin/products/${productId}/delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('حدث خطأ أثناء حذف المنتج');
+            }
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // تفعيل/تعطيل المنتج المميز
+    document.querySelectorAll('.featured-toggle').forEach(toggle => {
+        toggle.addEventListener('change', function() {
+            const productId = this.dataset.productId;
+            const isFeatured = this.checked;
+            
+            fetch(`/admin/products/${productId}/toggle-featured`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ is_featured: isFeatured })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // إظهار رسالة نجاح
+                    const alert = document.createElement('div');
+                    alert.className = 'alert alert-success alert-dismissible fade show';
+                    alert.innerHTML = `
+                        تم تحديث حالة المنتج بنجاح
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    document.querySelector('.container').insertBefore(alert, document.querySelector('h1'));
+                } else {
+                    // إظهار رسالة خطأ
+                    const alert = document.createElement('div');
+                    alert.className = 'alert alert-danger alert-dismissible fade show';
+                    alert.innerHTML = `
+                        حدث خطأ أثناء تحديث حالة المنتج
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    document.querySelector('.container').insertBefore(alert, document.querySelector('h1'));
+                    // إعادة الزر إلى حالته السابقة
+                    this.checked = !isFeatured;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // إظهار رسالة خطأ
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-danger alert-dismissible fade show';
+                alert.innerHTML = `
+                    حدث خطأ أثناء تحديث حالة المنتج
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.querySelector('.container').insertBefore(alert, document.querySelector('h1'));
+                // إعادة الزر إلى حالته السابقة
+                this.checked = !isFeatured;
+            });
+        });
+    });
+
+    // حذف المنتج
+    document.querySelectorAll('.delete-product').forEach(button => {
+        button.addEventListener('click', function() {
+            if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+                const productId = this.dataset.productId;
+                fetch(`/admin/products/${productId}/delete`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        this.closest('tr').remove();
+                        // إظهار رسالة نجاح
+                        const alert = document.createElement('div');
+                        alert.className = 'alert alert-success alert-dismissible fade show';
+                        alert.innerHTML = `
+                            تم حذف المنتج بنجاح
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        `;
+                        document.querySelector('.container').insertBefore(alert, document.querySelector('h1'));
+                    } else {
+                        // إظهار رسالة خطأ
+                        const alert = document.createElement('div');
+                        alert.className = 'alert alert-danger alert-dismissible fade show';
+                        alert.innerHTML = `
+                            حدث خطأ أثناء حذف المنتج
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        `;
+                        document.querySelector('.container').insertBefore(alert, document.querySelector('h1'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // إظهار رسالة خطأ
+                    const alert = document.createElement('div');
+                    alert.className = 'alert alert-danger alert-dismissible fade show';
+                    alert.innerHTML = `
+                        حدث خطأ أثناء حذف المنتج
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    document.querySelector('.container').insertBefore(alert, document.querySelector('h1'));
+                });
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

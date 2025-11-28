@@ -1,0 +1,168 @@
+{% extends "shared/base.html" %}
+
+{% block title %}سلة المشتريات{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">سلة المشتريات</h1>
+    
+    {% if cart_items %}
+    <div class="row">
+        <div class="col-md-8">
+            {% for item in cart_items %}
+            <div class="card mb-3 cart-item" id="cart-item-{{ item.id }}" data-price="{{ item.price }}">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img src="{{ url_for('static', filename='uploads/' + item.image) if item.image else url_for('static', filename='images/default_product.jpg') }}" 
+                             class="img-fluid rounded-start" 
+                             alt="{{ item.name }}"
+                             style="height: 200px; object-fit: cover;">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ item.name }}</h5>
+                            <p class="card-text text-muted">{{ item.description[:100] }}...</p>
+                            
+                            <div class="mb-2">
+                                <strong>المقاس:</strong>
+                                <span class="badge bg-light text-dark">
+                                    {{ item.size if item.size else 'غير محدد' }}
+                                </span>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <strong>اللون:</strong>
+                                <span class="badge bg-light text-dark">{{ item.color if item.color else 'غير محدد' }}</span>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="input-group" style="width: 150px;">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity('{{ item.id }}', -1)">-</button>
+                                    <span class="form-control text-center quantity" id="quantity-{{ item.id }}">{{ item.quantity }}</span>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity('{{ item.id }}', 1)">+</button>
+                                </div>
+                                <div class="text-end">
+                                    <h5 class="mb-0">{{ item.price * item.quantity }} ريال</h5>
+                                    <small class="text-muted">{{ item.price }} ريال للقطعة</small>
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-danger mt-3" onclick="removeItem('{{ item.id }}')">
+                                <i class="fas fa-trash me-2"></i>
+                                حذف
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">ملخص الطلب</h5>
+                    
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>عدد المنتجات:</span>
+                        <span>{{ cart_items|length }}</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>المجموع:</span>
+                        <span class="h5 mb-0" id="total-price">{{ total }} ريال</span>
+                    </div>
+                    
+                    <button class="btn btn-primary w-100" onclick="window.location.href='{{ url_for('checkout') }}'">
+                        <i class="fas fa-shopping-cart me-2"></i>
+                        إتمام الشراء
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+        <h3>سلة المشتريات فارغة</h3>
+        <p class="text-muted">لم تقم بإضافة أي منتجات إلى السلة بعد</p>
+        <a href="{{ url_for('home') }}" class="btn btn-primary mt-3">
+            <i class="fas fa-home me-2"></i>
+            العودة للرئيسية
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function updateQuantity(productId, change) {
+    const quantityElement = document.getElementById(`quantity-${productId}`);
+    const currentQuantity = parseInt(quantityElement.textContent);
+    const newQuantity = currentQuantity + change;
+    
+    if (newQuantity < 1) return;
+    
+    fetch(`/cart/update/${productId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `quantity=${change}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            quantityElement.textContent = newQuantity;
+            updateTotal();
+        } else {
+            alert(data.message || 'حدث خطأ أثناء تحديث الكمية');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('حدث خطأ أثناء تحديث الكمية');
+    });
+}
+
+function removeItem(productId) {
+    if (!confirm('هل أنت متأكد من حذف هذا المنتج من السلة؟')) {
+        return;
+    }
+    
+    fetch(`/cart/remove/${productId}`, {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const itemElement = document.getElementById(`cart-item-${productId}`);
+            itemElement.remove();
+            updateTotal();
+            
+            // إذا كانت السلة فارغة، قم بتحديث الصفحة
+            const cartItems = document.querySelectorAll('.cart-item');
+            if (cartItems.length === 0) {
+                location.reload();
+            }
+        } else {
+            alert(data.message || 'حدث خطأ أثناء حذف المنتج');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('حدث خطأ أثناء حذف المنتج');
+    });
+}
+
+function updateTotal() {
+    let total = 0;
+    document.querySelectorAll('.cart-item').forEach(item => {
+        const price = parseFloat(item.dataset.price);
+        const quantity = parseInt(item.querySelector('.quantity').textContent);
+        total += price * quantity;
+    });
+    
+    document.getElementById('total-price').textContent = total.toFixed(2) + ' ريال';
+}
+</script>
+{% endblock %} 

@@ -1,0 +1,432 @@
+{% extends "shared/base.html" %}
+
+{% block title %}إدارة الطلبات - لوحة تحكم المشرف{% endblock %}
+
+{% block content %}
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1050;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+    .modal.show {
+        display: block;
+    }
+    .modal-dialog {
+        position: relative;
+        width: auto;
+        margin: 1.75rem auto;
+        max-width: 800px;
+    }
+    .modal-content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        background-color: #fff;
+        border: 1px solid rgba(0,0,0,.2);
+    }
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1040;
+        width: 100vw;
+        height: 100vh;
+        background-color: #000;
+    }
+    .modal-backdrop.show {
+        opacity: 0.5;
+    }
+    body.modal-open {
+        overflow: hidden;
+    }
+    /* تبسيط التأثيرات البصرية */
+    .card {
+        border: 1px solid #dee2e6;
+        margin-bottom: 1rem;
+    }
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        padding: 0.75rem 1rem;
+    }
+    .table {
+        margin-bottom: 0;
+    }
+    .table thead th {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .badge {
+        padding: 0.35em 0.65em;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // تبسيط معالجة النوافذ المنبثقة
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        modal.addEventListener('show.bs.modal', function() {
+            document.body.style.overflow = 'hidden';
+        });
+        modal.addEventListener('hidden.bs.modal', function() {
+            document.body.style.overflow = '';
+        });
+    });
+});
+</script>
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- القائمة الجانبية -->
+        <div class="col-md-3 col-lg-2">
+            <div class="list-group">
+                <a href="{{ url_for('admin_dashboard') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-tachometer-alt"></i> لوحة التحكم
+                </a>
+                <a href="{{ url_for('admin_stores') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-store"></i> المتاجر
+                </a>
+                <a href="{{ url_for('admin_products') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-box"></i> المنتجات
+                </a>
+                <a href="{{ url_for('admin_users') }}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-users"></i> المستخدمين
+                </a>
+                <a href="{{ url_for('admin_orders') }}" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-shopping-cart"></i> الطلبات
+                </a>
+            </div>
+        </div>
+
+        <!-- المحتوى الرئيسي -->
+        <div class="col-md-9 col-lg-10">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">
+                    <i class="fas fa-shopping-cart text-primary"></i>
+                    إدارة الطلبات
+                </h2>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
+                    <i class="fas fa-filter"></i> تصفية
+                </button>
+            </div>
+
+            {% if orders %}
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% for order in orders %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-shopping-cart text-primary"></i>
+                                    طلب #{{ order._id }}
+                                </h5>
+                                <span class="badge {% if order.status == 'completed' %}bg-success{% elif order.status == 'cancelled' %}bg-danger{% else %}bg-warning{% endif %}">
+                                    {% if order.status == 'completed' %}
+                                    <i class="fas fa-check-circle"></i> مكتمل
+                                    {% elif order.status == 'cancelled' %}
+                                    <i class="fas fa-times-circle"></i> ملغي
+                                    {% else %}
+                                    <i class="fas fa-clock"></i> قيد الانتظار
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6 class="text-muted mb-2">
+                                    <i class="fas fa-user text-primary"></i> معلومات العميل
+                                </h6>
+                                <p class="mb-1"><strong>الاسم:</strong> {{ order.name }}</p>
+                                <p class="mb-1"><strong>الهاتف:</strong> {{ order.phone }}</p>
+                                <p class="mb-0"><strong>العنوان:</strong> {{ order.address }}</p>
+                            </div>
+                            <hr>
+                            <div class="mb-3">
+                                <h6 class="text-muted mb-2">
+                                    <i class="fas fa-info-circle text-primary"></i> معلومات الطلب
+                                </h6>
+                                <p class="mb-1">
+                                    <strong>طريقة الدفع:</strong>
+                                    {% if order.payment_method == 'bank' %}
+                                    <span class="badge bg-info">
+                                        <i class="fas fa-university"></i> تحويل بنكي
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-warning">
+                                        <i class="fas fa-money-bill-wave"></i> الدفع عند الاستلام
+                                    </span>
+                                    {% endif %}
+                                </p>
+                                <p class="mb-1"><strong>المجموع:</strong> {{ order.total }} ريال</p>
+                                <p class="mb-0"><strong>التاريخ:</strong> {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                            </div>
+                            {% if order.payment_method == 'bank' and order.transfer_image %}
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-info btn-sm w-100" data-bs-toggle="modal" data-bs-target="#transferImage{{ order._id }}">
+                                    <i class="fas fa-image"></i> عرض إشعار التحويل
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-light">
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#orderDetails{{ order._id }}">
+                                    <i class="fas fa-eye"></i> التفاصيل
+                                </button>
+                                {% if order.status == 'pending' %}
+                                <div class="btn-group">
+                                    <form method="POST" action="{{ url_for('complete_order', order_id=order._id) }}" class="d-inline">
+                                        <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('هل أنت متأكد من إكمال هذا الطلب؟')">
+                                            <i class="fas fa-check"></i> إكمال
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('cancel_order', order_id=order._id) }}" class="d-inline">
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('هل أنت متأكد من إلغاء هذا الطلب؟')">
+                                            <i class="fas fa-times"></i> إلغاء
+                                        </button>
+                                    </form>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> لا توجد طلبات حالياً
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal تفاصيل الطلب -->
+{% for order in orders %}
+<div class="modal" id="orderDetails{{ order._id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-shopping-cart"></i> تفاصيل الطلب #{{ order._id }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- معلومات العميل -->
+                <div class="card mb-3">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">
+                            <i class="fas fa-user text-primary"></i> 
+                            معلومات العميل
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <p class="mb-2">
+                                    <strong>الاسم:</strong><br>
+                                    {{ order.name }}
+                                </p>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="mb-2">
+                                    <strong>رقم الهاتف:</strong><br>
+                                    {{ order.phone }}
+                                </p>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="mb-2">
+                                    <strong>العنوان:</strong><br>
+                                    {{ order.address }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- معلومات الطلب -->
+                <div class="card mb-3">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">
+                            <i class="fas fa-info-circle text-primary"></i> 
+                            معلومات الطلب
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <p class="mb-2">
+                                    <strong>طريقة الدفع:</strong><br>
+                                    {% if order.payment_method == 'bank' %}
+                                    <span class="badge bg-info">
+                                        <i class="fas fa-university"></i> تحويل بنكي
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-warning">
+                                        <i class="fas fa-money-bill-wave"></i> الدفع عند الاستلام
+                                    </span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="mb-2">
+                                    <strong>الحالة:</strong><br>
+                                    <span class="badge {% if order.status == 'completed' %}bg-success{% elif order.status == 'cancelled' %}bg-danger{% else %}bg-warning{% endif %}">
+                                        {% if order.status == 'completed' %}
+                                        <i class="fas fa-check-circle"></i> مكتمل
+                                        {% elif order.status == 'cancelled' %}
+                                        <i class="fas fa-times-circle"></i> ملغي
+                                        {% else %}
+                                        <i class="fas fa-clock"></i> قيد الانتظار
+                                        {% endif %}
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="mb-2">
+                                    <strong>التاريخ:</strong><br>
+                                    {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- المنتجات -->
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">
+                            <i class="fas fa-shopping-basket text-primary"></i> 
+                            المنتجات
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>المنتج</th>
+                                        <th>السعر</th>
+                                        <th>الكمية</th>
+                                        <th>المجموع</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in order.order_items %}
+                                    <tr>
+                                        <td>{{ item.name }}</td>
+                                        <td>{{ item.price }} ريال</td>
+                                        <td>{{ item.quantity }}</td>
+                                        <td>{{ item.price * item.quantity }} ريال</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot class="bg-light">
+                                    <tr>
+                                        <td colspan="3" class="text-end"><strong>المجموع الكلي:</strong></td>
+                                        <td><strong>{{ order.total }} ريال</strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> إغلاق
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal صورة التحويل -->
+{% if order.transfer_image %}
+<div class="modal" id="transferImage{{ order._id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-image"></i> إشعار التحويل البنكي
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center p-0">
+                <div id="imageContainer{{ order._id }}" class="p-3">
+                    <img src="{{ url_for('static', filename='uploads/' + order.transfer_image) }}" 
+                         class="img-fluid w-100" 
+                         alt="إشعار التحويل البنكي"
+                         style="max-height: 80vh; object-fit: contain;"
+                         onerror="this.onerror=null; document.getElementById('imageContainer{{ order._id }}').innerHTML='<div class=\'alert alert-danger\'>عذراً، لا يمكن تحميل الصورة</div>'">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> إغلاق
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+
+<!-- Modal التصفية -->
+<div class="modal" id="filterModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-filter"></i> تصفية الطلبات
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="GET" action="{{ url_for('admin_orders') }}">
+                    <div class="mb-3">
+                        <label class="form-label">الحالة</label>
+                        <select name="status" class="form-select">
+                            <option value="">الكل</option>
+                            <option value="pending">قيد الانتظار</option>
+                            <option value="completed">مكتمل</option>
+                            <option value="cancelled">ملغي</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">طريقة الدفع</label>
+                        <select name="payment_method" class="form-select">
+                            <option value="">الكل</option>
+                            <option value="bank">تحويل بنكي</option>
+                            <option value="cash">الدفع عند الاستلام</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">من تاريخ</label>
+                        <input type="date" name="start_date" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">إلى تاريخ</label>
+                        <input type="date" name="end_date" class="form-control">
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check"></i> تطبيق
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,439 @@
+{% extends "shared/base.html" %}
+
+{% block title %}الرئيسية - متجرنا{% endblock %}
+
+{% block styles %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #6a11cb, #2575fc); /* تعديل الألوان إلى تدرج أنيق */
+        color: white;
+        padding: 4rem 0;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("{{ url_for('static', filename='images/pattern.png') }}") repeat;
+        opacity: 0.1;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-title {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .hero-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+    }
+
+    .search-box {
+        background: white;
+        padding: 0.5rem;
+        border-radius: 50px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        margin: 0 auto;
+        display: flex;           /* إضافة flex لجعل الأيقونة بجوار الحقل */
+        align-items: center;
+        gap: 0.5rem;             /* مسافة بسيطة بين الحقل والأيقونة */
+    }
+
+    .search-input {
+        border: none;
+        padding: 0.8rem 1.5rem;
+        width: 100%;
+        border-radius: 50px;
+        font-size: 1.1rem;
+    }
+
+    .search-input:focus {
+        outline: none;
+    }
+
+    .upload-icon {
+        background: #2575fc;     /* لون أيقونة الكاميرا */
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .upload-icon:hover {
+        background: #1d60d4;
+    }
+
+    input[type="file"] {
+        display: none;
+    }
+
+    .section-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 2rem;
+        position: relative;
+        padding-bottom: 1rem;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background: #3498db;
+    }
+
+    .category-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin-bottom: 2rem;
+    }
+
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .category-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .category-info {
+        padding: 1.5rem;
+    }
+
+    .category-name {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .category-description {
+        color: #7f8c8d;
+        margin-bottom: 1rem;
+    }
+
+    .store-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0  0.3s ease;
+        margin-bottom: 2rem;
+    }
+
+    .store-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .store-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .store-info {
+        padding: 1.5rem;
+    }
+
+    .store-name {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .store-description {
+        color: #7f8c8d;
+        margin-bottom: 1rem;
+    }
+
+    .store-rating {
+        color: #f1c40f;
+        margin-bottom: 1rem;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0  0.3s ease;
+        margin-bottom: 2rem;
+        cursor: pointer;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .product-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .product-info {
+        padding: 1.5rem;
+    }
+
+    .product-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .product-price {
+        font-size: 1.3rem;
+        color: #e74c3c;
+        font-weight: 700;
+    }
+
+    .store-badge {
+        background: #3498db;
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #95a5a6;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+        color: #7f8c8d;
+    }
+
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- قسم البداية -->
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-content text-center">
+            <h1 class="hero-title">مرحباً بك في متجرنا</h1>
+            <p class="hero-subtitle">اكتشف أفضل المنتجات من أفضل المتاجر</p>
+            <div class="search-box">
+                <input type="text" class="search-input" placeholder="ابحث عن منتجات أو متاجر...">
+                <label class="upload-icon" title="ابحث بالصورة">
+                    <i class="fas fa-camera"></i>
+                    <input type="file" id="imageSearchInput" accept="image/*" onchange="handleImageSearch(this)">
+                </label>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    <!-- الأقسام -->
+    <section class="mb-5">
+        <h2 class="section-title">تصفح حسب القسم</h2>
+        <div class="row">
+            {% for category in categories %}
+            <div class="col-md-4">
+                <div class="category-card">
+                    {% if category.name == 'ملابس رجالية' %}
+                    <img src="https://images.unsplash.com/photo-1617137968427-85924c800a22?w=800&auto=format&fit=crop" 
+                         alt="{{ category.name }}" 
+                         class="category-image">
+                    {% elif category.name == 'ملابس نسائية' %}
+                    <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&auto=format&fit=crop" 
+                         alt="{{ category.name }}" 
+                         class="category-image">
+                    {% elif category.name == 'أطفال' %}
+                    <img src="https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?w=800&auto=format&fit=crop" 
+                         alt="{{ category.name }}" 
+                         class="category-image">
+                    {% elif category.name == 'إلكترونيات' %}
+                    <img src="https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=800&auto=format&fit=crop" 
+                         alt="{{ category.name }}" 
+                         class="category-image">
+                    {% elif category.name == 'هواتف' %}
+                    <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&auto=format&fit=crop" 
+                         alt="{{ category.name }}" 
+                         class="category-image">
+                    {% else %}
+                    <img src="{{ category.image }}" 
+                         alt="{{ category.name }}" 
+                         class="category-image"
+                         onerror="this.src='https://images.unsplash.com/photo-1498049794561-7780e7231661?w=800&auto=format&fit=crop'">
+                    {% endif %}
+                    <div class="category-info">
+                        <h3 class="category-name">{{ category.name }}</h3>
+                        <p class="category-description">{{ category.description }}</p>
+                        <a href="{{ url_for('category', category=category._id) }}" class="btn btn-primary">تصفح القسم</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- المتاجر المميزة -->
+    <section class="mb-5">
+        <h2 class="section-title">متاجر مميزة</h2>
+        <div class="row">
+            {% for store in stores %}
+            <div class="col-md-4">
+                <div class="store-card">
+                    <img src="{{ url_for('static', filename='uploads/' + store.image) if store.image else url_for('static', filename='images/default_store.jpg') }}" 
+                         alt="{{ store.name }}" 
+                         class="store-image">
+                    <div class="store-info">
+                        <span class="store-badge">
+                            <i class="fas fa-star me-1"></i>متجر مميز
+                        </span>
+                        <h3 class="store-name">{{ store.name }}</h3>
+                        <p class="store-description">{{ store.description }}</p>
+                        <div class="store-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <a href="{{ url_for('store', store_id=store._id) }}" class="btn btn-primary">زيارة المتجر</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- المنتجات الأكثر مبيعاً -->
+    <section class="mb-5">
+        <h2 class="section-title">الأكثر مبيعاً</h2>
+        <div class="row">
+            {% for product in products %}
+            <div class="col-md-4">
+                <div class="product-card" data-product-url="{{ url_for('product_details', product_id=product._id) }}">
+                    <img src="{{ url_for('static', filename='uploads/' + product.image) if product.image else url_for('static', filename='images/default_product.jpg') }}" 
+                         alt="{{ product.name }}" 
+                         class="product-image">
+                    <div class="product-info">
+                        <h3 class="product-name">{{ product.name }}</h3>
+                        <div class="product-price">{{ product.price }} ريال</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // تفعيل البحث النصي
+    const searchInput = document.querySelector('.search-input');
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            const searchTerm = this.value.trim();
+            if (searchTerm) {
+                window.location.href = `/search?q=${encodeURIComponent(searchTerm)}`;
+            }
+        }
+    });
+
+    // تفعيل النقر على بطاقات المنتجات
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const url = this.dataset.productUrl;
+            if (url) {
+                window.location.href = url;
+            }
+        });
+    });
+});
+
+// تابع رفع الصورة للبحث بالصورة
+function handleImageSearch(input) {
+    const file = input.files[0];
+    if (file) {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        fetch('/search-by-image', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.text())  /* تم التعديل هنا لقراءة HTML وليس JSON */
+        .then(html => {
+            document.open();
+            document.write(html);
+            document.close();
+        })
+        .catch(err => {
+            alert('حدث خطأ أثناء البحث بالصورة');
+        });
+    }
+}
+</script>
+{% endblock %}

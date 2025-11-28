@@ -1,0 +1,83 @@
+{% extends "admin/base.html" %}
+
+{% block title %}تعديل المستخدم - لوحة تحكم المشرف{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="mb-0">
+                                <i class="fas fa-user text-primary me-2"></i>
+                                تعديل المستخدم
+                            </h5>
+                        </div>
+                        <div class="col-auto">
+                            <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-right me-1"></i>
+                                العودة للمستخدمين
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">الاسم</label>
+                                    <input type="text" class="form-control" id="name" name="name" value="{{ user.name }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">البريد الإلكتروني</label>
+                                    <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">رقم الجوال</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" value="{{ user.phone }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="user_type" class="form-label">نوع المستخدم</label>
+                                    <select class="form-select" id="user_type" name="user_type" required>
+                                        <option value="">اختر نوع المستخدم</option>
+                                        <option value="admin" {% if user.user_type == 'admin' %}selected{% endif %}>مشرف</option>
+                                        <option value="store_owner" {% if user.user_type == 'store_owner' %}selected{% endif %}>صاحب متجر</option>
+                                        <option value="customer" {% if user.user_type == 'customer' %}selected{% endif %}>عميل</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="store" class="form-label">المتجر</label>
+                                    <select class="form-select" id="store" name="store">
+                                        <option value="">لا يوجد متجر</option>
+                                        {% for store in stores %}
+                                        <option value="{{ store._id }}" {% if store._id == user.store_id %}selected{% endif %}>
+                                            {{ store.name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">كلمة المرور الجديدة (اختياري)</label>
+                                    <input type="password" class="form-control" id="password" name="password">
+                                    <small class="text-muted">اترك هذا الحقل فارغاً إذا كنت لا تريد تغيير كلمة المرور</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-end mt-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>
+                                حفظ التغييرات
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

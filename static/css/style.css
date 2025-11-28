@@ -1,0 +1,152 @@
+/* RTL Support */
+body {
+    direction: rtl;
+    text-align: right;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Custom Card Styles */
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,.05);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* Store Card Styles */
+.store-card {
+    height: 100%;
+}
+
+.store-card img {
+    height: 200px;
+    object-fit: cover;
+}
+
+/* Product Card Styles */
+.product-card {
+    height: 100%;
+}
+
+.product-card img {
+    height: 200px;
+    object-fit: cover;
+}
+
+/* Dashboard Stats */
+.dashboard-stat {
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* Form Styles */
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+}
+
+/* Button Styles */
+.btn {
+    border-radius: 5px;
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+/* Table Styles */
+.table th {
+    background-color: #f8f9fa;
+}
+
+/* Navigation */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+/* Footer */
+footer {
+    margin-top: 50px;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Responsive Images */
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Custom Alert Styles */
+.alert {
+    margin-bottom: 0;
+    border-radius: 0;
+}
+
+/* Store Dashboard */
+.store-info {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+/* Product Grid */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px 0;
+}
+
+/* Category Badge */
+.category-badge {
+    background-color: #e9ecef;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.9em;
+    color: #495057;
+}
+
+/* Price Tag */
+.price-tag {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #28a745;
+}
+
+/* Stock Status */
+.stock-status {
+    font-size: 0.9em;
+    padding: 3px 8px;
+    border-radius: 12px;
+}
+
+.in-stock {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.low-stock {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.out-of-stock {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.badge {
+    font-size: 0.9em;
+    padding: 0.5em 0.8em;
+} 

@@ -1,0 +1,322 @@
+{% extends "shared/base.html" %}
+
+{% block title %}{{ store.name }} - متجرنا{% endblock %}
+
+{% block styles %}
+<style>
+    .store-header {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .store-image {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 4px solid white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .store-name {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 1rem 0;
+    }
+
+    .store-description {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 2rem;
+        padding: 1rem;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .product-image {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .product-card:hover .product-image {
+        transform: scale(1.05);
+    }
+
+    .product-info {
+        padding: 1.5rem;
+    }
+
+    .product-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .product-price {
+        font-size: 1.3rem;
+        color: #e74c3c;
+        font-weight: 700;
+    }
+
+    .category-badge {
+        background: #f8f9fa;
+        color: #6c757d;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        display: inline-block;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #95a5a6;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+        color: #7f8c8d;
+    }
+
+    .rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+    }
+
+    .rating input {
+        display: none;
+    }
+
+    .rating label {
+        cursor: pointer;
+        font-size: 1.5rem;
+        color: #ddd;
+        padding: 0 0.1em;
+    }
+
+    .rating input:checked ~ label,
+    .rating label:hover,
+    .rating label:hover ~ label {
+        color: #ffc107;
+    }
+
+    .rating-item:last-child {
+        border-bottom: none !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- معلومات المتجر -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <img src="{{ url_for('static', filename='uploads/' + store.image) if store.image else url_for('static', filename='images/default_store.jpg') }}" 
+                 alt="{{ store.name }}" 
+                 class="img-fluid rounded shadow">
+        </div>
+        <div class="col-md-8">
+            <h1 class="mb-3">{{ store.name }}</h1>
+            <p class="text-muted mb-3">{{ store.description }}</p>
+            <div class="d-flex align-items-center mb-3">
+                <div class="me-3">
+                    <span class="h4 mb-0">{{ "%.1f"|format(store.average_rating|default(0)) }}</span>
+                    <div class="text-warning">
+                        {% for i in range(5) %}
+                            {% if i < (store.average_rating|default(0)|int) %}
+                                <i class="fas fa-star"></i>
+                            {% elif i < (store.average_rating|default(0)) %}
+                                <i class="fas fa-star-half-alt"></i>
+                            {% else %}
+                                <i class="far fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <span class="text-muted">({{ store.ratings|length }} تقييم)</span>
+            </div>
+            <p class="mb-2"><i class="fas fa-map-marker-alt text-primary me-2"></i>{{ store.address }}</p>
+            <p class="mb-0"><i class="fas fa-tag text-primary me-2"></i>{{ category.name }}</p>
+        </div>
+    </div>
+
+    <!-- قسم التقييمات -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-star text-warning me-2"></i>
+                        تقييمات المتجر
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if current_user.is_authenticated %}
+                    <form id="ratingForm" class="mb-4">
+                        <div class="mb-3">
+                            <label class="form-label">تقييمك</label>
+                            <div class="rating">
+                                {% for i in range(5, 0, -1) %}
+                                <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}" {% if user_rating and user_rating.rating == i %}checked{% endif %}>
+                                <label for="star{{ i }}"><i class="fas fa-star"></i></label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="comment" class="form-label">تعليقك</label>
+                            <textarea class="form-control" id="comment" name="comment" rows="3">{{ user_rating.comment if user_rating else '' }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-2"></i>
+                            إرسال التقييم
+                        </button>
+                    </form>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        يجب تسجيل الدخول لإضافة تقييم
+                    </div>
+                    {% endif %}
+
+                    <div id="ratingsList">
+                        {% for rating in store.ratings %}
+                        <div class="rating-item border-bottom py-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <h6 class="mb-0">{{ rating.user_name }}</h6>
+                                    <small class="text-muted">{{ rating.created_at.strftime('%Y-%m-%d') }}</small>
+                                </div>
+                                <div class="text-warning">
+                                    {% for i in range(5) %}
+                                        {% if i < rating.rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% if rating.comment %}
+                            <p class="mb-0">{{ rating.comment }}</p>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- المنتجات -->
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">منتجات المتجر</h2>
+            <div class="row">
+                {% for product in products %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <img src="{{ url_for('static', filename='uploads/' + product.image) if product.image else url_for('static', filename='images/default_product.jpg') }}" 
+                             class="card-img-top" 
+                             alt="{{ product.name }}"
+                             style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text text-muted">{{ product.description[:100] }}...</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="h5 mb-0">{{ product.price }} ريال</span>
+                                <a href="{{ url_for('product_details', product_id=product._id) }}" class="btn btn-primary">
+                                    <i class="fas fa-shopping-cart me-2"></i>
+                                    عرض التفاصيل
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ratingForm = document.getElementById('ratingForm');
+    if (ratingForm) {
+        ratingForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const rating = document.querySelector('input[name="rating"]:checked')?.value;
+            const comment = document.getElementById('comment').value;
+            
+            if (!rating) {
+                alert('الرجاء اختيار تقييم');
+                return;
+            }
+            
+            fetch(`/store/{{ store._id }}/rate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'rating': rating,
+                    'comment': comment
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.message || 'حدث خطأ أثناء إضافة التقييم');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('حدث خطأ أثناء إضافة التقييم');
+            });
+        });
+    }
+});
+</script>
+{% endblock %} 

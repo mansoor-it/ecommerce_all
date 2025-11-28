@@ -1,0 +1,450 @@
+{% extends "shared/base.html" %}
+
+{% block title %}لوحة تحكم المتجر - {{ store.name }}{% endblock %}
+
+{% block styles %}
+<style>
+    .dashboard-container {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    
+    .store-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+        border: none;
+    }
+    
+    .store-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .store-image {
+        border-radius: 15px 0 0 15px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .store-image::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 50%;
+        background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    }
+    
+    .store-image img {
+        transition: transform 0.3s ease;
+    }
+    
+    .store-card:hover .store-image img {
+        transform: scale(1.05);
+    }
+    
+    .stats-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+        border: none;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .product-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+        border: none;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .product-image {
+        height: 200px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .product-card:hover .product-image {
+        transform: scale(1.05);
+    }
+    
+    .btn-custom {
+        border-radius: 10px;
+        padding: 0.6rem 1.5rem;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        border: none;
+    }
+    
+    .btn-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-custom.btn-primary {
+        background: #2196F3;
+    }
+    
+    .btn-custom.btn-success {
+        background: #4CAF50;
+    }
+    
+    .btn-custom.btn-danger {
+        background: #F44336;
+    }
+    
+    .stats-icon {
+        font-size: 2.5rem;
+        opacity: 0.8;
+    }
+    
+    .empty-state {
+        background: white;
+        border-radius: 15px;
+        padding: 3rem;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        color: #6c757d;
+        margin-bottom: 1rem;
+    }
+    
+    .card-title {
+        font-weight: 600;
+        color: #2d3748;
+    }
+    
+    .text-primary {
+        color: #2196F3 !important;
+    }
+    
+    .stats-card.bg-primary {
+        background: #2196F3;
+    }
+    
+    .stats-card.bg-success {
+        background: #4CAF50;
+    }
+    
+    .stats-card.bg-info {
+        background: #00BCD4;
+    }
+    
+    .stats-card.bg-warning {
+        background: #FFC107;
+    }
+    
+    .store-name-overlay {
+        background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+        padding: 1.5rem;
+        border-radius: 0 0 15px 15px;
+    }
+    
+    .store-name-overlay h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: white;
+        margin: 0;
+    }
+    
+    .product-actions {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .product-card:hover .product-actions {
+        opacity: 1;
+    }
+    
+    .product-actions .btn {
+        background: white;
+        border: none;
+        margin: 0.2rem;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .product-actions .btn:hover {
+        transform: scale(1.1);
+    }
+    
+    .store-info {
+        padding: 2rem;
+    }
+    
+    .store-info .icon-box {
+        background: rgba(33, 150, 243, 0.1);
+        width: 45px;
+        height: 45px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .store-info .icon-box:hover {
+        transform: scale(1.05);
+    }
+    
+    .store-info .icon-box i {
+        font-size: 1.2rem;
+        color: #2196F3;
+    }
+    
+    .store-description {
+        color: #6c757d;
+        line-height: 1.6;
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .stats-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: white;
+    }
+    
+    .stats-label {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="container">
+        <!-- معلومات المتجر -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="store-card">
+                    <div class="row g-0">
+                        <div class="col-md-4 store-image">
+                            {% if store.image %}
+                            <img src="{{ url_for('static', filename='uploads/' + store.image) }}" class="img-fluid h-100 w-100" alt="{{ store.name }}" style="object-fit: cover;">
+                            {% else %}
+                            <img src="{{ url_for('static', filename='images/default_store.jpg') }}" class="img-fluid h-100 w-100" alt="صورة افتراضية" style="object-fit: cover;">
+                            {% endif %}
+                            <div class="position-absolute bottom-0 start-0 end-0 p-4 store-name-overlay">
+                                <h2 class="text-white mb-0">{{ store.name }}</h2>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="store-info">
+                                <div class="d-flex justify-content-between align-items-start mb-4">
+                                    <div>
+                                        <h3 class="card-title mb-3">{{ store.name }}</h3>
+                                        <p class="store-description">{{ store.description }}</p>
+                                    </div>
+                                    <div class="btn-group">
+                                        <a href="{{ url_for('edit_store') }}" class="btn btn-custom btn-primary">
+                                            <i class="fas fa-edit me-2"></i>تعديل المتجر
+                                        </a>
+                                        <a href="{{ url_for('store_view', store_id=store._id) }}" class="btn btn-custom btn-success">
+                                            <i class="fas fa-store me-2"></i>عرض المتجر
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center mb-4">
+                                            <div class="icon-box">
+                                                <i class="fas fa-map-marker-alt"></i>
+                                            </div>
+                                            <div>
+                                                <small class="text-muted d-block mb-1">العنوان</small>
+                                                <span class="fw-bold">{{ store.address }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center mb-4">
+                                            <div class="icon-box">
+                                                <i class="fas fa-tag"></i>
+                                            </div>
+                                            <div>
+                                                <small class="text-muted d-block mb-1">القسم</small>
+                                                <span class="fw-bold">{{ category.name if category else 'بدون قسم' }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- إحصائيات سريعة -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-card bg-primary text-white p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="stats-label mb-2">إجمالي المنتجات</h6>
+                            <h2 class="stats-value mb-0">{{ total_products }}</h2>
+                        </div>
+                        <i class="fas fa-box stats-icon"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card bg-success text-white p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="stats-label mb-2">المنتجات النشطة</h6>
+                            <h2 class="stats-value mb-0">{{ active_products }}</h2>
+                        </div>
+                        <i class="fas fa-check-circle stats-icon"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card bg-info text-white p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="stats-label mb-2">الطلبات الجديدة</h6>
+                            <h2 class="stats-value mb-0">{{ new_orders_count }}</h2>
+                        </div>
+                        <i class="fas fa-shopping-cart stats-icon"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card bg-warning text-white p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="stats-label mb-2">المبيعات</h6>
+                            <h2 class="stats-value mb-0">{{ "%.2f"|format(total_sales) }} ريال</h2>
+                        </div>
+                        <i class="fas fa-chart-line stats-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- المنتجات -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="store-card">
+                    <div class="card-header bg-white py-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-box me-2 text-primary"></i>
+                                المنتجات
+                            </h5>
+                            <a href="{{ url_for('add_product') }}" class="btn btn-custom btn-primary">
+                                <i class="fas fa-plus me-2"></i>إضافة منتج جديد
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        {% if products %}
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                            {% for product in products %}
+                            <div class="col">
+                                <div class="product-card">
+                                    <div class="position-relative">
+                                        {% if product.image %}
+                                        <img src="{{ url_for('static', filename='uploads/' + product.image) }}" class="product-image w-100" alt="{{ product.name }}">
+                                        {% else %}
+                                        <img src="{{ url_for('static', filename='images/default_product.jpg') }}" class="product-image w-100" alt="صورة افتراضية">
+                                        {% endif %}
+                                        <div class="product-actions">
+                                            <a href="{{ url_for('edit_product', product_id=product._id) }}" class="btn">
+                                                <i class="fas fa-edit text-primary"></i>
+                                            </a>
+                                            <button class="btn" onclick="deleteProduct('{{ product._id }}')">
+                                                <i class="fas fa-trash text-danger"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <h5 class="card-title mb-3">{{ product.name }}</h5>
+                                        <p class="card-text text-muted mb-4">{{ product.description }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="h4 mb-0 text-primary">{{ product.price }} ريال</span>
+                                            <div class="btn-group">
+                                                <a href="{{ url_for('edit_product', product_id=product._id) }}" class="btn btn-sm btn-custom btn-primary">
+                                                    <i class="fas fa-edit me-1"></i>تعديل
+                                                </a>
+                                                <button class="btn btn-sm btn-custom btn-danger" onclick="deleteProduct('{{ product._id }}')">
+                                                    <i class="fas fa-trash me-1"></i>حذف
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-box-open"></i>
+                            <h5 class="text-muted mb-3">لا توجد منتجات حالياً</h5>
+                            <p class="text-muted mb-4">قم بإضافة منتجات جديدة للمتجر</p>
+                            <a href="{{ url_for('add_product') }}" class="btn btn-custom btn-primary">
+                                <i class="fas fa-plus me-2"></i>إضافة منتج جديد
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function deleteProduct(productId) {
+    if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+        fetch(`/product/delete/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('حدث خطأ أثناء حذف المنتج');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('حدث خطأ أثناء حذف المنتج');
+        });
+    }
+}
+</script>
+{% endblock %} 

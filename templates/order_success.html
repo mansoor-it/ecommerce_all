@@ -1,0 +1,31 @@
+{% extends "shared/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-body text-center">
+            <h2 class="card-title text-success mb-4">تم إنشاء الطلب بنجاح!</h2>
+            
+            <div class="alert alert-info">
+                <h4>تفاصيل الطلب</h4>
+                <p>رقم الطلب: {{ order._id }}</p>
+                <p>طريقة الدفع: {% if order.payment_method == 'bank' %}تحويل بنكي{% else %}الدفع عند الاستلام{% endif %}</p>
+                <p>المجموع: {{ order.total }} ريال</p>
+                <p>العنوان: {{ order.address }}</p>
+                <p>رقم الهاتف: {{ order.phone }}</p>
+            </div>
+
+            {% if order.payment_method == 'bank' %}
+            <div class="alert alert-warning">
+                <h5>ملاحظة هامة</h5>
+                <p>يرجى الاحتفاظ بصورة إشعار التحويل حتى يتم تأكيد الطلب</p>
+            </div>
+            {% endif %}
+
+            <div class="mt-4">
+                <a href="{{ url_for('home') }}" class="btn btn-primary">العودة للرئيسية</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

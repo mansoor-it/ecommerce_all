@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}تعديل المنتج - متجرنا{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('home') }}">الرئيسية</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">لوحة التحكم</a></li>
+                    <li class="breadcrumb-item active">تعديل المنتج</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">تعديل المنتج</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">اسم المنتج</label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ product.name }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">وصف المنتج</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required>{{ product.description }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="price" class="form-label">السعر (ريال)</label>
+                            <input type="number" class="form-control" id="price" name="price" step="0.01" min="0" value="{{ product.price }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="image" class="form-label">صورة المنتج</label>
+                            {% if product.image %}
+                            <div class="mb-2">
+                                <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.name }}" class="img-thumbnail" style="max-width: 200px;">
+                            </div>
+                            {% endif %}
+                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                            <small class="text-muted">اترك هذا الحقل فارغاً إذا كنت لا تريد تغيير الصورة</small>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-right"></i> عودة
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> حفظ التغييرات
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

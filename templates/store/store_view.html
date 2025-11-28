@@ -1,0 +1,123 @@
+{% extends "shared/base.html" %}
+
+{% block title %}{{ store.name }} - متجرنا{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- معلومات المتجر -->
+    <div class="card mb-4">
+        <div class="row g-0">
+            <div class="col-md-4">
+                {% if store.image %}
+                <img src="{{ url_for('static', filename='uploads/' + store.image) }}" class="img-fluid rounded-start" alt="{{ store.name }}" style="height: 100%; object-fit: cover;">
+                {% else %}
+                <div class="bg-light d-flex align-items-center justify-content-center" style="height: 100%; min-height: 300px;">
+                    <i class="fas fa-store fa-4x text-muted"></i>
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h2 class="card-title">{{ store.name }}</h2>
+                    <p class="card-text">{{ store.description }}</p>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <i class="fas fa-map-marker-alt"></i> {{ store.address }}
+                        </small>
+                    </p>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <i class="fas fa-tag"></i> {{ category.name if category else 'بدون قسم' }}
+                        </small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- المنتجات -->
+    <h3 class="mb-4">منتجات المتجر</h3>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for product in products %}
+        <div class="col">
+            <div class="card h-100">
+                {% if product.image %}
+                <img src="{{ url_for('static', filename='uploads/' + product.image) }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <i class="fas fa-box fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">{{ product.description }}</p>
+                    <p class="card-text">
+                        <strong>السعر:</strong> {{ product.price }} ريال
+                    </p>
+                    {% if product.colors %}
+                    <p class="card-text">
+                        <strong>الألوان المتوفرة:</strong>
+                        {% for color in product.colors %}
+                        <span class="badge bg-secondary me-1">{{ color }}</span>
+                        {% endfor %}
+                    </p>
+                    {% endif %}
+                    {% if product.pants_sizes %}
+                    <p class="card-text">
+                        <strong>أحجام البناطيل:</strong>
+                        {% for size in product.pants_sizes %}
+                        <span class="badge bg-info me-1">{{ size }}</span>
+                        {% endfor %}
+                    </p>
+                    {% endif %}
+                    {% if product.clothes_sizes %}
+                    <p class="card-text">
+                        <strong>أحجام الملابس:</strong>
+                        {% for size in product.clothes_sizes %}
+                        <span class="badge bg-info me-1">{{ size }}</span>
+                        {% endfor %}
+                    </p>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <button class="btn btn-primary w-100" onclick="addToCart('{{ product._id }}')">
+                        <i class="fas fa-shopping-cart"></i> إضافة إلى السلة
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                لا توجد منتجات في هذا المتجر حالياً
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function addToCart(productId) {
+    fetch(`/cart/add/${productId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('تمت إضافة المنتج إلى السلة');
+        } else {
+            alert('حدث خطأ أثناء إضافة المنتج إلى السلة');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('حدث خطأ أثناء إضافة المنتج إلى السلة');
+    });
+}
+</script>
+{% endblock %} 

@@ -1,0 +1,55 @@
+{% extends "shared/base.html" %}
+
+{% block title %}{{ category.name }} - متجرنا{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('home') }}">الرئيسية</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ category.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">{{ category.name }}</h2>
+        </div>
+    </div>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for store in stores %}
+        <div class="col">
+            <div class="card h-100">
+                {% if store.image %}
+                <img src="{{ url_for('static', filename='uploads/' + store.image) }}" class="card-img-top" alt="{{ store.name }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <i class="fas fa-store fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ store.name }}</h5>
+                    <p class="card-text">{{ store.description }}</p>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <i class="fas fa-map-marker-alt"></i> {{ store.address }}
+                        </small>
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('store_view', store_id=store._id) }}" class="btn btn-primary w-100">
+                        <i class="fas fa-store"></i> عرض المتجر
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                لا توجد متاجر في هذا القسم حالياً
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 
